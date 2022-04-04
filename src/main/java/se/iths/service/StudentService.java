@@ -36,7 +36,7 @@ public class StudentService {
         entitymanager.remove(foundStudent);
     }
 
-    public List<Student> sortedByLastname(String lastName){
+    public List<Student> findByLastname(String lastName){
         String query = "SELECT i FROM Student i WHERE i.lastName = :lastName";
         return entitymanager.createQuery(query, Student.class)
                 .setParameter("lastName", lastName).getResultList();

@@ -41,13 +41,9 @@ public class StudentRest {
     public Response findStudentById(@PathParam("id") Long id){
         Student foundStudent = studentService.findStudentById(id);
 
-        if(foundStudent == null){
-            throw new WebApplicationException(Response
-                    .status(Response.Status.NOT_FOUND)
-                    .entity("Item with ID " + id + " was not found in database")
-                    .type(MediaType.TEXT_PLAIN_TYPE).build());
-        }
+        Exception.noFoundStudent(id, foundStudent);
         return Response.ok(foundStudent).build();
+
     }
 
     @Path("getall")
@@ -60,14 +56,27 @@ public class StudentRest {
     @Path("{id}")
     @DELETE
     public Response deleteStudent(@PathParam("id") Long id){
+
+        Student foundStudent = studentService.findStudentById(id);
+
+        Exception.noFoundStudent(id, foundStudent);
         studentService.deleteStudent(id);
-        return Response.ok().build();
+
+        return Response.noContent().build();
     }
 
-    @Path("sortedbylastname")
+    @Path("findbylastname")
     @GET
-    public List<Student> sortedByLastname(@QueryParam("sortedbylastname") String lastName){
-        return studentService.sortedByLastname(lastName);
+    public List<Student> findByLastname(@QueryParam("findbylastname") String lastName) {
+
+        List<Student> foundStudent = studentService.findByLastname(lastName);
+
+        if (foundStudent.size() == 0) {
+            Exception.findByLastname(lastName);
+
+        }
+        return foundStudent;
+
     }
 
     @Path("getallwithnamedquery")
