@@ -14,7 +14,6 @@ import java.util.List;
 @Produces(MediaType.APPLICATION_JSON)
 public class StudentRest {
 
-
     StudentService studentService;
 
     @Inject
@@ -39,14 +38,23 @@ public class StudentRest {
 
     @Path("update")
     @PUT
-    public Response updateStudent(Student student){
+    public Response updateStudent(Student student) {
+
+
+        List<Student> foundStudents = studentService.getAllStudents();
+        String emailValue = student.getEmail();
+
+        if (Exception.findStudentByEmail(foundStudents, emailValue)){
+            Exception.sendEmailException();
+        }
+
         studentService.updateStudent(student);
         return Response.ok(student).build();
     }
 
     @Path("{id}")
     @GET
-    public Response findStudentById(@PathParam("id") Long id){
+    public Response findStudentById(@PathParam("id") Long id) {
         Student foundStudent = studentService.findStudentById(id);
 
         Exception.noFoundStudent(id, foundStudent);
@@ -56,14 +64,14 @@ public class StudentRest {
 
     @Path("getall")
     @GET
-    public Response getAllStudents(){
+    public Response getAllStudents() {
         List<Student> foundStudents = studentService.getAllStudents();
         return Response.ok(foundStudents).build();
     }
 
     @Path("{id}")
     @DELETE
-    public Response deleteStudent(@PathParam("id") Long id){
+    public Response deleteStudent(@PathParam("id") Long id) {
 
         Student foundStudent = studentService.findStudentById(id);
 
