@@ -23,8 +23,16 @@ public class StudentRest {
     }
 
     @Path("new")
-    @POST // POST för att skapa något alldeles nytt. Alltså inte uppdatera något som redan finns
-    public Response createStudent(Student student){
+    @POST
+    public Response createStudent(Student student) {
+
+        List<Student> foundStudents = studentService.getAllStudents();
+        String emailValue = student.getEmail();
+
+        if (Exception.findStudentByEmail(foundStudents, emailValue)){
+            Exception.sendEmailException();
+        }
+
         studentService.createStudent(student);
         return Response.ok(student).build();
     }
@@ -69,7 +77,7 @@ public class StudentRest {
     @GET
     public List<Student> findByLastname(@QueryParam("findbylastname") String lastName) {
 
-        List<Student> foundStudent = studentService.findByLastname(lastName);
+        List<Student> foundStudent = studentService.checkStudentEmail(lastName);
 
         if (foundStudent.size() == 0) {
             Exception.findByLastname(lastName);
@@ -79,18 +87,15 @@ public class StudentRest {
 
     }
 
-    @Path("getallwithnamedquery")
-    @GET
+        @Path("getallwithnamedquery")
+        @GET
+        public List<Student> getAllWithNamedQuery () {
+            return studentService.getAllWithNamedQuery();
+        }
 
-    public List<Student> getAllWithNamedQuery(){
-        return studentService.getAllWithNamedQuery();
+        @Path("getallstudentssortedbycategory")
+        @GET
+        public List<Student> getAllItemSortedbyCategory () {
+            return studentService.getAllStudentsSortedByCategory();
+        }
     }
-
-    @Path("getallstudentssortedbycategory")
-    @GET
-    public List<Student> getAllItemSortedbyCategory(){
-        return  studentService.getAllStudentsSortedByCategory();
-    }
-
-
-}

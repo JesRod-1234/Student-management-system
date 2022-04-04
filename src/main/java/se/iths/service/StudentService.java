@@ -42,6 +42,22 @@ public class StudentService {
                 .setParameter("lastName", lastName).getResultList();
     }
 
+    public List<Student> checkStudentEmail(String studentEmail){
+
+        String query = "SELECT i FROM Student i WHERE i.email = :email";
+
+        List<Student> email = entitymanager.createQuery(query, Student.class)
+                .setParameter("email", studentEmail).getResultList();
+
+        if(email.size() == 0){
+            return email;
+        }else {
+            return null;
+        }
+
+
+    }
+
     // Named query
     public List<Student> getAllWithNamedQuery(){
         return entitymanager
