@@ -36,22 +36,6 @@ public class StudentRest {
         return Response.ok(student).build();
     }
 
-//    @Path("new")
-//    @POST
-//    public Response createStudent(Student student) {
-//
-//        List<Student> foundStudents = studentService.getAllStudents();
-//
-//        String emailValue = student.getEmail();
-//
-//        if (Exception.findStudentByEmail(foundStudents, emailValue)){
-//            Exception.sendEmailException();
-//        }
-//
-//        studentService.createStudent(student);
-//        return Response.ok(student).build();
-//    }
-
 
     @Path("update")
     @PUT

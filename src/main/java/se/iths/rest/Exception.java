@@ -1,6 +1,8 @@
 package se.iths.rest;
 
 import se.iths.entity.Student;
+import se.iths.entity.Subject;
+import se.iths.entity.Teacher;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
@@ -54,6 +56,45 @@ public class Exception {
             }
         }
         return isPresent;
+    }
+
+    public static Boolean findTeacherByEmail(List<Teacher> foundTeacher, String emailValue) {
+        Boolean isPresent = false;
+
+        for (Teacher teacher : foundTeacher) {
+            if (teacher.getEmail().contains(emailValue)) {
+                isPresent = true;
+                break;
+            }
+        }
+        return isPresent;
+    }
+
+    public static void deleteTeacher(Long id, Teacher foundStudent) {
+        if (foundStudent == null) {
+            throw new WebApplicationException(Response
+                    .status(Response.Status.NOT_FOUND)
+                    .entity("Teacher with ID " + id + " do not exist!")
+                    .type(MediaType.TEXT_PLAIN_TYPE).build());
+        }
+    }
+
+    public static void noFoundTeacher(Long id, Teacher foundTeacher) {
+        if (foundTeacher == null) {
+            throw new WebApplicationException(Response
+                    .status(Response.Status.NOT_FOUND)
+                    .entity("Teacher with ID " + id + " was not found in database")
+                    .type(MediaType.TEXT_PLAIN_TYPE).build());
+        }
+    }
+
+    public static void noFoundSubject(Long id, Subject foundSubject) {
+        if (foundSubject == null) {
+            throw new WebApplicationException(Response
+                    .status(Response.Status.NOT_FOUND)
+                    .entity("Subject with ID " + id + " was not found in database")
+                    .type(MediaType.TEXT_PLAIN_TYPE).build());
+        }
     }
 }
 

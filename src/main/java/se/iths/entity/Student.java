@@ -1,8 +1,12 @@
 package se.iths.entity;
 
+import javax.json.bind.annotation.JsonbTransient;
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 @NamedQuery(name = "studentEntity.findAll", query = "SELECT i FROM Student i")
 @Entity //Markerat så att detta är en tabell i våran databas sedan. Detta är alltså en tabell i en databas. Hör ihop med @Id nedan
@@ -20,8 +24,11 @@ public class Student {
     @Column(unique=true)
     private String email;
     private String phoneNumber;
+    @ManyToMany(mappedBy = "students", cascade = CascadeType.PERSIST)
+    private Set<Subject> subjects;
 
-    //    @NotEmpty //  @Column(unique=true)
+
+    //@NotEmpty //@Column(unique=true)
 
     public Student(String firstName, String lastName, String email, String phoneNumber) {
         this.firstName = firstName;
@@ -31,6 +38,15 @@ public class Student {
     }
 
     public Student() {
+    }
+
+    @JsonbTransient
+    public Set<Subject> getSubjects() {
+        return subjects;
+    }
+
+    public void setSubjects(Set<Subject> subjects) {
+        this.subjects = subjects;
     }
 
     public Long getId() {
