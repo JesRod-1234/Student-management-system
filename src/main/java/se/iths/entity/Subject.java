@@ -68,6 +68,7 @@ public class Subject {
         this.subjectName = subjectName;
     }
 
+
     @Override
     public String toString() {
         return "Subject{" +
@@ -75,4 +76,5 @@ public class Subject {
                 ", subjectName='" + subjectName + '\'' +
                 '}';
     }
+
 }

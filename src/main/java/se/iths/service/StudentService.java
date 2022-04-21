@@ -1,6 +1,7 @@
 package se.iths.service;
 
 import se.iths.entity.Student;
+import se.iths.entity.Subject;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -69,6 +70,13 @@ public class StudentService {
         String query = "SELECT i FROM Student i ORDER BY i.lastName";
         return entitymanager.createQuery(query, Student.class)
                 .setParameter(query, Student.class).getResultList();
+    }
+
+    public void addStudentToSubject(Long subjectId, Long studentId){
+        Subject foundSubject = entitymanager.find(Subject.class,subjectId);
+        Student foundStudent = entitymanager.find(Student.class, studentId);
+        foundSubject.getStudents().add(foundStudent);
+        foundStudent.getSubjects().add(foundSubject);
     }
 
 

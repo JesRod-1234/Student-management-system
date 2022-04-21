@@ -89,4 +89,8 @@ public class Student {
         this.phoneNumber = phoneNumber;
     }
 
+    public void addSubject(Subject subject) {
+        subjects.add(subject);
+        subject.addStudent(this);
+    }
 }

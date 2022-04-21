@@ -1,7 +1,11 @@
 package se.iths.rest;
 
 import se.iths.entity.Student;
+import se.iths.entity.Subject;
+import se.iths.errors.ExceptionStudent;
+import se.iths.errors.Exceptions;
 import se.iths.service.StudentService;
+import se.iths.service.SubjectService;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
@@ -9,31 +13,34 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 
+import static se.iths.errors.ExceptionStudent.emailExists;
+
 @Path("students")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class StudentRest {
 
-    StudentService studentService;
+    static StudentService studentService;
+    SubjectService subjectService;
 
     @Inject
-    public StudentRest(StudentService studentService) {
+    public StudentRest(StudentService studentService, SubjectService subjectService) {
         this.studentService = studentService;
+        this.subjectService = subjectService;
     }
 
     @Path("new")
     @POST
     public Response createStudent(Student student) {
 
-        List<Student> foundStudents = studentService.getAllStudents();
-
-        String emailValue = student.getEmail();
-
-        if (Exception.findStudentByEmail(foundStudents, emailValue)) {
-            Exception.sendEmailException();
+        if (emailExists(studentService.getAllStudents(), student.getEmail())) {
+            Exceptions.sendJsonEMailException(student.getEmail());
+            return null;
+        } else {
+            studentService.createStudent(student);
+            return Response.ok(student).build();
         }
-        studentService.createStudent(student);
-        return Response.ok(student).build();
+
     }
 
 
@@ -42,23 +49,22 @@ public class StudentRest {
     public Response updateStudent(Student student) {
 
 
-        List<Student> foundStudents = studentService.getAllStudents();
-        String emailValue = student.getEmail();
-
-        if (Exception.findStudentByEmail(foundStudents, emailValue)){
-            Exception.sendEmailException();
+        if (emailExists(studentService.getAllStudents(), student.getEmail())) {
+           Exceptions.sendJsonEMailException(student.getEmail());
+            return null;
+        } else {
+            studentService.updateStudent(student);
+            return Response.ok(student).build();
         }
-
-        studentService.updateStudent(student);
-        return Response.ok(student).build();
     }
+
 
     @Path("{id}")
     @GET
     public Response findStudentById(@PathParam("id") Long id) {
         Student foundStudent = studentService.findStudentById(id);
 
-        Exception.noFoundStudent(id, foundStudent);
+        ExceptionStudent.noFoundStudent(id, foundStudent);
         return Response.ok(foundStudent).build();
 
     }
@@ -76,7 +82,7 @@ public class StudentRest {
 
         Student foundStudent = studentService.findStudentById(id);
 
-        Exception.noFoundStudent(id, foundStudent);
+        ExceptionStudent.deleteStudent(id, foundStudent);
         studentService.deleteStudent(id);
 
         return Response.noContent().build();
@@ -89,11 +95,22 @@ public class StudentRest {
         List<Student> foundStudent = studentService.checkStudentEmail(lastName);
 
         if (foundStudent.size() == 0) {
-            Exception.findByLastname(lastName);
+            ExceptionStudent.findByLastname(lastName);
 
         }
         return foundStudent;
 
+    }
+
+    @Path("addStudentToSubject/{studentId}/{subjectId}")
+    @PUT
+    public Response addStudentToSubject(@PathParam("studentId") Long studentId, @PathParam("subjectId") Long subjectId) {
+
+        Student foundStudent = studentService.findStudentById(studentId);
+        Subject foundSubject = subjectService.findSubjectById(subjectId);
+        foundStudent.addSubject(foundSubject);
+        studentService.updateStudent(foundStudent);
+        return Response.ok(foundStudent).build();
     }
 
         @Path("getallwithnamedquery")
@@ -107,4 +124,8 @@ public class StudentRest {
         public List<Student> getAllItemSortedbyCategory () {
             return studentService.getAllStudentsSortedByCategory();
         }
+
+
     }
+
+

@@ -1,9 +1,9 @@
 package se.iths.rest;
 
-import se.iths.entity.Student;
 import se.iths.entity.Subject;
 import se.iths.entity.Teacher;
-import se.iths.service.StudentService;
+import se.iths.errors.ExceptionTeacher;
+import se.iths.errors.Exceptions;
 import se.iths.service.SubjectService;
 import se.iths.service.TeacherService;
 
@@ -30,31 +30,28 @@ public class TeacherRest {
     @POST
     public Response createTeacher(Teacher teacher) {
 
-        List<Teacher> foundTeacher = teacherService.getAllTeachers();
-
-        String emailValue = teacher.getEmail();
-
-        if (Exception.findTeacherByEmail(foundTeacher, emailValue)) {
-            Exception.sendEmailException();
+        if (ExceptionTeacher.emailExistsTeacher(teacherService.getAllTeachers(), teacher.getEmail())) {
+            Exceptions.sendJsonEMailException(teacher.getEmail());
+            return null;
+        } else {
+            teacherService.createTeacher(teacher);
+            return Response.ok(teacher).build();
         }
-        teacherService.createTeacher(teacher);
-        return Response.ok(teacher).build();
+
     }
 
     @Path("update")
     @PUT
     public Response updateTeacher(Teacher teacher) {
 
-
-        List<Teacher> foundTeacher = teacherService.getAllTeachers();
-        String emailValue = teacher.getEmail();
-
-        if (Exception.findTeacherByEmail(foundTeacher, emailValue)){
-            Exception.sendEmailException();
+        if (ExceptionTeacher.emailExistsTeacher(teacherService.getAllTeachers(), teacher.getEmail())) {
+            Exceptions.sendJsonEMailException(teacher.getEmail());
+            return null;
+        } else {
+            teacherService.createTeacher(teacher);
+            return Response.ok(teacher).build();
         }
 
-        teacherService.updateTeacher(teacher);
-        return Response.ok(teacher).build();
     }
 
     @Path("{id}")
@@ -62,7 +59,7 @@ public class TeacherRest {
     public Response findTeacherById(@PathParam("id") Long id) {
         Teacher foundTeacher = teacherService.findTeacherById(id);
 
-        Exception.noFoundTeacher(id, foundTeacher);
+        ExceptionTeacher.noFoundTeacher(id, foundTeacher);
         return Response.ok(foundTeacher).build();
 
     }
@@ -80,7 +77,7 @@ public class TeacherRest {
 
         Teacher foundTeacher = teacherService.findTeacherById(id);
 
-        Exception.noFoundTeacher(id, foundTeacher);
+        ExceptionTeacher.deleteTeacher(id, foundTeacher);
         teacherService.deleteTeacher(id);
 
         return Response.noContent().build();
@@ -97,4 +94,6 @@ public class TeacherRest {
         return Response.ok().entity(findTeacher.toString() + findSubject.toString()).build();
 
     }
+
+
 }

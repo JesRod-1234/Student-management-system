@@ -1,10 +1,9 @@
 package se.iths.rest;
 
 import se.iths.entity.Subject;
-import se.iths.entity.Teacher;
-import se.iths.service.StudentService;
+import se.iths.errors.ExceptionSubject;
+import se.iths.errors.Exceptions;
 import se.iths.service.SubjectService;
-import se.iths.service.TeacherService;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
@@ -35,11 +34,14 @@ public class SubjectRest {
     @Path("update")
     @PUT
     public Response updateSubject(Subject subject) {
-        List<Subject> foundSubject = subjectService.getAllSubjects();
 
-        Subject subjectResult = subjectService.updateSubject(subject);
-//        subjectService.updateSubject(subject);
-        return Response.ok(subject).build();
+        if (ExceptionSubject.subjectExistsAlready(subjectService.getAllSubjects(), subject.getSubjectName())) {
+            Exceptions.sendJsonEMailException(subject.getSubjectName());
+            return null;
+        } else {
+            subjectService.updateSubject(subject);
+            return Response.ok(subject).build();
+        }
     }
 
     @Path("{id}")
@@ -47,7 +49,7 @@ public class SubjectRest {
     public Response findSubjectById(@PathParam("id") Long id) {
         Subject foundSubject = subjectService.findSubjectById(id);
 
-        Exception.noFoundSubject(id, foundSubject);
+        ExceptionSubject.noFoundSubjectJson(id, foundSubject);
         return Response.ok(foundSubject).build();
 
     }
@@ -65,7 +67,7 @@ public class SubjectRest {
 
         Subject foundSubject = subjectService.findSubjectById(id);
 
-        Exception.noFoundSubject(id, foundSubject);
+        ExceptionSubject.deleteSubject(id, foundSubject);
         subjectService.deleteSubject(id);
 
         return Response.noContent().build();
